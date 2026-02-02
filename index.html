@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Care1st Dental Management - Professional Dental Training Institute</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Archivo:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <!--
+                <svg viewBox="0 0 40 40" class="logo-icon">
+                    <path d="M20 5 L35 15 L35 25 L20 35 L5 25 L5 15 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="20" cy="20" r="6" fill="currentColor"/>
+                </svg>
+            -->
+                <img src="care1stlogo.jpg" alt="logo" height="40px" width="40px">
+                <span class="logo-text">Care<span class="highlight">1st</span> Dental Institute</span>
+            </div>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li class="dropdown">
+                    <a href="#courses" class="nav-link">Courses & Workshops</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#masterclasses">Masterclasses</a></li>
+                        <li><a href="#hands-on">Hands-on Training</a></li>
+                        <li><a href="#upcoming">Upcoming Events</a></li>
+                    </ul>
+                </li>
+                <li><a href="#products" class="nav-link">Products & Equipment</a></li>
+                <li class="dropdown">
+                    <a href="#facilities" class="nav-link">Facilities</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#space-rental">Space Rental</a></li>
+                        <li><a href="#tour">Virtual Tour</a></li>
+                    </ul>
+                </li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+                <li><a href="#appointment" class="btn-primary-nav">Book Appointment</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span class="title-line">Elevating Dental</span>
+                    <span class="title-line">Excellence Through</span>
+                    <span class="title-line highlight-text">Masterful Training</span>
+                </h1>
+                <p class="hero-subtitle">State-of-the-art facilities for hands-on learning, professional development, and innovative dental technology showcases</p>
+                <div class="hero-cta">
+                    <a href="#courses" class="btn-primary">Explore Courses</a>
+                    <a href="#appointment" class="btn-secondary">Schedule Visit</a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Professionals Trained</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3+</div>
+                    <div class="stat-label">Dental Chairs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Annual Workshops</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Who We Are</span>
+                <h2>Professional Training Redefined</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>Care1st Dental Management is a premier dental training institute dedicated to advancing the skills and knowledge of dental professionals. Our state-of-the-art facility combines cutting-edge technology with expert instruction to deliver unparalleled hands-on training experiences.</p>
+                    <p>From intimate masterclasses to large-scale product demonstrations, we provide the perfect environment for learning, networking, and professional growth in the dental industry.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <div class="feature-icon">🎓</div>
+                            <h4>Expert Instructors</h4>
+                            <p>Learn from industry-leading dental professionals</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔬</div>
+                            <h4>Modern Equipment</h4>
+                            <p>Train with the latest dental technology</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🏢</div>
+                            <h4>Premium Facilities</h4>
+                            <p>Professional space designed for optimal learning</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="courses">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Education</span>
+                <h2>Courses & Workshops</h2>
+                <p>Comprehensive training programs designed to elevate your dental practice</p>
+            </div>
+            <div class="courses-grid" id="coursesGrid">
+                <!-- Courses will be populated by JavaScript -->
+            </div>
+            <div class="text-center">
+                <a href="#appointment" class="btn-primary">Enroll in a Course</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Equipment</span>
+                <h2>Featured Products & Devices</h2>
+                <p>Discover innovative dental technology and equipment</p>
+            </div>
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Facilities Section -->
+    <section id="facilities" class="facilities">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Our Space</span>
+                <h2>World-Class Training Facilities</h2>
+            </div>
+            <div class="facilities-content">
+                <div class="facility-card">
+                    <div class="facility-image">
+                        <div class="placeholder-image">Lecture Hall</div>
+                    </div>
+                    <h3>Professional Lecture Hall</h3>
+                    <p>Modern auditorium-style seating with advanced AV equipment for presentations and demonstrations. Capacity: 80 attendees.</p>
+                    <a href="#space-rental" class="link-arrow">Rent This Space →</a>
+                </div>
+                <div class="facility-card">
+                    <div class="facility-image">
+                        <div class="placeholder-image">Training Area</div>
+                    </div>
+                    <h3>Hands-On Training Area</h3>
+                    <p>15+ fully equipped dental chairs with latest technology for practical skill development and technique refinement.</p>
+                    <a href="#space-rental" class="link-arrow">Rent This Space →</a>
+                </div>
+                <div class="facility-card">
+                    <div class="facility-image">
+                        <div class="placeholder-image">Showcase Room</div>
+                    </div>
+                    <h3>Product Showcase Room</h3>
+                    <p>Dedicated space for product demonstrations, vendor presentations, and equipment exhibitions.</p>
+                    <a href="#space-rental" class="link-arrow">Rent This Space →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Appointment Section -->
+    <section id="appointment" class="appointment">
+        <div class="container">
+            <div class="appointment-wrapper">
+                <div class="appointment-info">
+                    <h2>Schedule Your Visit</h2>
+                    <p>Book a course, schedule a facility tour, or arrange a private training session. We're here to support your professional development.</p>
+                    <div class="info-items">
+                        <div class="info-item">
+                            <strong>Course Enrollment</strong>
+                            <span>Reserve your spot in upcoming workshops</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Facility Tours</strong>
+                            <span>Visit our training center in person</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Space Rental</strong>
+                            <span>Book our facilities for your event</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Product Demonstrations</strong>
+                            <span>Schedule hands-on equipment trials</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="appointment-form-container">
+                    <form id="appointmentForm" class="appointment-form">
+                        <h3>Book an Appointment</h3>
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentType">Appointment Type *</label>
+                            <select id="appointmentType" name="appointmentType" required>
+                                <option value="">Select Type</option>
+                                <option value="course">Course Enrollment</option>
+                                <option value="tour">Facility Tour</option>
+                                <option value="rental">Space Rental Inquiry</option>
+                                <option value="demo">Product Demonstration</option>
+                                <option value="consultation">General Consultation</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date">Preferred Date *</label>
+                                <input type="date" id="date" name="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="time">Preferred Time *</label>
+                                <input type="time" id="time" name="time" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Additional Information</label>
+                            <textarea id="message" name="message" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary btn-full">Submit Appointment Request</button>
+                        <p class="form-note">We'll confirm your appointment within 24 hours</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Get in Touch</span>
+                <h2>Contact Us</h2>
+            </div>
+            <div class="contact-wrapper">
+                <div class="contact-info-section">
+                    <h3>Visit Our Training Center</h3>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-icon">📍</div>
+                            <div>
+                                <strong>Address</strong>
+                                <p>1548 Valwood Pkwy Ste 100<br>Carrollton, TX 75006</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">📞</div>
+                            <div>
+                                <strong>Phone</strong>
+                                <p>(214) 566-7795</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">📧</div>
+                            <div>
+                                <strong>Email</strong>
+                                <p>info@care1stdental.com<br>training@care1stdental.com</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">🕐</div>
+                            <div>
+                                <strong>Business Hours</strong>
+                                <p>Monday - Friday: 8:00 AM - 6:00 PM<br>Saturday: 9:00 AM - 3:00 PM<br>Sunday: Closed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form-section">
+                    <form id="contactForm" class="contact-form">
+                        <h3>Send Us a Message</h3>
+                        <div class="form-group">
+                            <label for="contactName">Name *</label>
+                            <input type="text" id="contactName" name="contactName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Email *</label>
+                            <input type="email" id="contactEmail" name="contactEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject *</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactMessage">Message *</label>
+                            <textarea id="contactMessage" name="contactMessage" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary btn-full">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <!--
+                        <svg viewBox="0 0 40 40" class="logo-icon">
+                            <path d="M20 5 L35 15 L35 25 L20 35 L5 25 L5 15 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="20" cy="20" r="6" fill="currentColor"/>
+                        </svg>
+                        -->
+                        <img src="care1stlogo.jpg" alt="logo" height="40px" width="50px">
+                        <span>Care<span class="highlight">1st</span> Dental Institute</span>
+                    </div>
+                    <p>Professional dental training for the modern practitioner</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#courses">Courses</a></li>
+                        <li><a href="#products">Products</a></li>
+                        <li><a href="#facilities">Facilities</a></li>
+                        <li><a href="#appointment">Book Appointment</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#course-catalog">Course Catalog</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                        <li><a href="#blog">Blog & News</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li>(214) 566-7795</li>
+                        <li>info@care1stdental.com</li>
+                        <li>1548 Valwood Pkwy Ste 100</li>
+                        <li>Carrolton</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Care1st Dental Management. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#privacy">Privacy Policy</a>
+                    <a href="#terms">Terms of Service</a>
+                    <a href="#accessibility">Accessibility</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-icon">✓</div>
+            <h3>Success!</h3>
+            <p id="modalMessage">Your request has been submitted successfully.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
