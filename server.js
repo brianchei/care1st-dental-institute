@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const app = express();
@@ -11,23 +10,39 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from the root directory
+app.use(express.static(__dirname));
 
 // In-memory storage (replace with database in production)
 const appointments = [];
 const contacts = [];
-/*
+
 // Email configuration (configure with your SMTP settings)
-const transporter = nodemailer.createTransporter({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+let transporter = null;
+
+// Try to initialize nodemailer, but don't fail if it's not configured
+try {
+    const nodemailer = require('nodemailer');
+    
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        transporter = nodemailer.createTransporter({
+            host: process.env.SMTP_HOST || 'smtp.gmail.com',
+            port: process.env.SMTP_PORT || 587,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+        console.log('Email transporter configured successfully');
+    } else {
+        console.log('Email not configured - appointments will be saved but emails will not be sent');
+        console.log('To enable emails, create a .env file with EMAIL_USER and EMAIL_PASS');
     }
-});
-*/
+} catch (error) {
+    console.log('Nodemailer not available - emails will not be sent');
+    console.log('This is normal for development. Appointments will still be saved.');
+}
 
 // Routes
 
@@ -155,53 +170,57 @@ app.post('/api/appointments', async (req, res) => {
         // Store appointment
         appointments.push(appointment);
         
-        // Send confirmation email to customer
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: 'Appointment Request Confirmation - Care1st Dental',
-                html: `
-                    <h2>Thank you for your appointment request!</h2>
-                    <p>Dear ${name},</p>
-                    <p>We have received your appointment request with the following details:</p>
-                    <ul>
-                        <li><strong>Type:</strong> ${appointmentType}</li>
-                        <li><strong>Date:</strong> ${date}</li>
-                        <li><strong>Time:</strong> ${time}</li>
-                    </ul>
-                    <p>We will confirm your appointment within 24 hours.</p>
-                    <p>If you have any questions, please contact us at (555) 123-4567.</p>
-                    <br>
-                    <p>Best regards,<br>Care1st Dental Management Team</p>
-                `
-            });
-        } catch (emailError) {
-            console.error('Email sending failed:', emailError);
-            // Don't fail the request if email fails
-        }
-        
-        // Send notification to admin
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-                subject: 'New Appointment Request',
-                html: `
-                    <h2>New Appointment Request</h2>
-                    <ul>
-                        <li><strong>Name:</strong> ${name}</li>
-                        <li><strong>Email:</strong> ${email}</li>
-                        <li><strong>Phone:</strong> ${phone}</li>
-                        <li><strong>Type:</strong> ${appointmentType}</li>
-                        <li><strong>Date:</strong> ${date}</li>
-                        <li><strong>Time:</strong> ${time}</li>
-                        <li><strong>Message:</strong> ${message || 'N/A'}</li>
-                    </ul>
-                `
-            });
-        } catch (emailError) {
-            console.error('Admin notification failed:', emailError);
+        // Send confirmation email to customer (only if email is configured)
+        if (transporter) {
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: email,
+                    subject: 'Appointment Request Confirmation - Care1st Dental',
+                    html: `
+                        <h2>Thank you for your appointment request!</h2>
+                        <p>Dear ${name},</p>
+                        <p>We have received your appointment request with the following details:</p>
+                        <ul>
+                            <li><strong>Type:</strong> ${appointmentType}</li>
+                            <li><strong>Date:</strong> ${date}</li>
+                            <li><strong>Time:</strong> ${time}</li>
+                        </ul>
+                        <p>We will confirm your appointment within 24 hours.</p>
+                        <p>If you have any questions, please contact us at (555) 123-4567.</p>
+                        <br>
+                        <p>Best regards,<br>Care1st Dental Management Team</p>
+                    `
+                });
+            } catch (emailError) {
+                console.error('Email sending failed:', emailError);
+                // Don't fail the request if email fails
+            }
+            
+            // Send notification to admin
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+                    subject: 'New Appointment Request',
+                    html: `
+                        <h2>New Appointment Request</h2>
+                        <ul>
+                            <li><strong>Name:</strong> ${name}</li>
+                            <li><strong>Email:</strong> ${email}</li>
+                            <li><strong>Phone:</strong> ${phone}</li>
+                            <li><strong>Type:</strong> ${appointmentType}</li>
+                            <li><strong>Date:</strong> ${date}</li>
+                            <li><strong>Time:</strong> ${time}</li>
+                            <li><strong>Message:</strong> ${message || 'N/A'}</li>
+                        </ul>
+                    `
+                });
+            } catch (emailError) {
+                console.error('Admin notification failed:', emailError);
+            }
+        } else {
+            console.log('Email not configured - skipping email notifications');
         }
         
         res.status(201).json({ 
@@ -258,44 +277,48 @@ app.post('/api/contact', async (req, res) => {
         // Store contact
         contacts.push(contact);
         
-        // Send confirmation email
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: contactEmail,
-                subject: 'Message Received - Care1st Dental',
-                html: `
-                    <h2>Thank you for contacting us!</h2>
-                    <p>Dear ${contactName},</p>
-                    <p>We have received your message and will respond as soon as possible.</p>
-                    <p><strong>Your message:</strong></p>
-                    <p>${contactMessage}</p>
-                    <br>
-                    <p>Best regards,<br>Care1st Dental Management Team</p>
-                `
-            });
-        } catch (emailError) {
-            console.error('Email sending failed:', emailError);
-        }
-        
-        // Send notification to admin
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-                subject: `New Contact Message: ${subject}`,
-                html: `
-                    <h2>New Contact Form Submission</h2>
-                    <ul>
-                        <li><strong>Name:</strong> ${contactName}</li>
-                        <li><strong>Email:</strong> ${contactEmail}</li>
-                        <li><strong>Subject:</strong> ${subject}</li>
-                        <li><strong>Message:</strong> ${contactMessage}</li>
-                    </ul>
-                `
-            });
-        } catch (emailError) {
-            console.error('Admin notification failed:', emailError);
+        // Send confirmation email (only if email is configured)
+        if (transporter) {
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: contactEmail,
+                    subject: 'Message Received - Care1st Dental',
+                    html: `
+                        <h2>Thank you for contacting us!</h2>
+                        <p>Dear ${contactName},</p>
+                        <p>We have received your message and will respond as soon as possible.</p>
+                        <p><strong>Your message:</strong></p>
+                        <p>${contactMessage}</p>
+                        <br>
+                        <p>Best regards,<br>Care1st Dental Management Team</p>
+                    `
+                });
+            } catch (emailError) {
+                console.error('Email sending failed:', emailError);
+            }
+            
+            // Send notification to admin
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+                    subject: `New Contact Message: ${subject}`,
+                    html: `
+                        <h2>New Contact Form Submission</h2>
+                        <ul>
+                            <li><strong>Name:</strong> ${contactName}</li>
+                            <li><strong>Email:</strong> ${contactEmail}</li>
+                            <li><strong>Subject:</strong> ${subject}</li>
+                            <li><strong>Message:</strong> ${contactMessage}</li>
+                        </ul>
+                    `
+                });
+            } catch (emailError) {
+                console.error('Admin notification failed:', emailError);
+            }
+        } else {
+            console.log('Email not configured - skipping email notifications');
         }
         
         res.status(201).json({ 
@@ -350,11 +373,6 @@ app.patch('/api/admin/appointments/:id', (req, res) => {
     });
 });
 
-// Serve frontend
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -362,6 +380,11 @@ app.use((err, req, res, next) => {
         success: false, 
         message: 'Something went wrong!' 
     });
+});
+
+// Serve frontend - MUST be last
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server
