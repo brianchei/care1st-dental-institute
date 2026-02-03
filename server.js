@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -10,8 +11,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Serve static files from the root directory
-app.use(express.static(__dirname));
 
 // In-memory storage (replace with database in production)
 const appointments = [];
@@ -43,6 +42,22 @@ try {
     console.log('Nodemailer not available - emails will not be sent');
     console.log('This is normal for development. Appointments will still be saved.');
 }
+
+// CRITICAL: Explicit static file routes for Vercel
+app.get('/styles.css', (req, res) => {
+    res.setHeader('Content-Type', 'text/css');
+    res.sendFile(path.join(__dirname, 'styles.css'));
+});
+
+app.get('/script.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(path.join(__dirname, 'script.js'));
+});
+
+app.get('/care1stlogo.jpg', (req, res) => {
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.sendFile(path.join(__dirname, 'care1stlogo.jpg'));
+});
 
 // Routes
 
@@ -387,10 +402,12 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Visit http://localhost:${PORT}`);
-});
+// Start server (only in development, Vercel handles this)
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`Visit http://localhost:${PORT}`);
+    });
+}
 
 module.exports = app;
