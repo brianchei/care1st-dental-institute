@@ -1,25 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// In-memory storage (replace with database in production)
+// In-memory storage
 const appointments = [];
 const contacts = [];
 
-// Email configuration (configure with your SMTP settings)
+// Email configuration
 let transporter = null;
 
-// Try to initialize nodemailer, but don't fail if it's not configured
 try {
     const nodemailer = require('nodemailer');
     
@@ -33,17 +30,12 @@ try {
                 pass: process.env.EMAIL_PASS
             }
         });
-        console.log('Email transporter configured successfully');
-    } else {
-        console.log('Email not configured - appointments will be saved but emails will not be sent');
-        console.log('To enable emails, create a .env file with EMAIL_USER and EMAIL_PASS');
     }
 } catch (error) {
-    console.log('Nodemailer not available - emails will not be sent');
-    console.log('This is normal for development. Appointments will still be saved.');
+    console.log('Nodemailer not available');
 }
 
-// CRITICAL: Explicit static file routes for Vercel
+// Explicit static file routes
 app.get('/styles.css', (req, res) => {
     res.setHeader('Content-Type', 'text/css');
     res.sendFile(path.join(__dirname, 'styles.css'));
@@ -59,14 +51,11 @@ app.get('/care1stlogo.jpg', (req, res) => {
     res.sendFile(path.join(__dirname, 'care1stlogo.jpg'));
 });
 
-// Routes
-
-// Health check
+// API Routes
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Get all courses
 app.get('/api/courses', (req, res) => {
     const courses = [
         {
@@ -112,7 +101,6 @@ app.get('/api/courses', (req, res) => {
     res.json(courses);
 });
 
-// Get all products
 app.get('/api/products', (req, res) => {
     const products = [
         {
@@ -146,12 +134,10 @@ app.get('/api/products', (req, res) => {
     res.json(products);
 });
 
-// Submit appointment
 app.post('/api/appointments', async (req, res) => {
     try {
         const { name, email, phone, appointmentType, date, time, message } = req.body;
         
-        // Validation
         if (!name || !email || !phone || !appointmentType || !date || !time) {
             return res.status(400).json({ 
                 success: false, 
@@ -159,7 +145,6 @@ app.post('/api/appointments', async (req, res) => {
             });
         }
         
-        // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({ 
@@ -168,7 +153,6 @@ app.post('/api/appointments', async (req, res) => {
             });
         }
         
-        // Create appointment object
         const appointment = {
             id: appointments.length + 1,
             name,
@@ -182,10 +166,8 @@ app.post('/api/appointments', async (req, res) => {
             createdAt: new Date().toISOString()
         };
         
-        // Store appointment
         appointments.push(appointment);
         
-        // Send confirmation email to customer (only if email is configured)
         if (transporter) {
             try {
                 await transporter.sendMail({
@@ -202,40 +184,13 @@ app.post('/api/appointments', async (req, res) => {
                             <li><strong>Time:</strong> ${time}</li>
                         </ul>
                         <p>We will confirm your appointment within 24 hours.</p>
-                        <p>If you have any questions, please contact us at (555) 123-4567.</p>
                         <br>
                         <p>Best regards,<br>Care1st Dental Management Team</p>
                     `
                 });
             } catch (emailError) {
                 console.error('Email sending failed:', emailError);
-                // Don't fail the request if email fails
             }
-            
-            // Send notification to admin
-            try {
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
-                    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-                    subject: 'New Appointment Request',
-                    html: `
-                        <h2>New Appointment Request</h2>
-                        <ul>
-                            <li><strong>Name:</strong> ${name}</li>
-                            <li><strong>Email:</strong> ${email}</li>
-                            <li><strong>Phone:</strong> ${phone}</li>
-                            <li><strong>Type:</strong> ${appointmentType}</li>
-                            <li><strong>Date:</strong> ${date}</li>
-                            <li><strong>Time:</strong> ${time}</li>
-                            <li><strong>Message:</strong> ${message || 'N/A'}</li>
-                        </ul>
-                    `
-                });
-            } catch (emailError) {
-                console.error('Admin notification failed:', emailError);
-            }
-        } else {
-            console.log('Email not configured - skipping email notifications');
         }
         
         res.status(201).json({ 
@@ -256,12 +211,10 @@ app.post('/api/appointments', async (req, res) => {
     }
 });
 
-// Submit contact form
 app.post('/api/contact', async (req, res) => {
     try {
         const { contactName, contactEmail, subject, contactMessage } = req.body;
         
-        // Validation
         if (!contactName || !contactEmail || !subject || !contactMessage) {
             return res.status(400).json({ 
                 success: false, 
@@ -269,7 +222,6 @@ app.post('/api/contact', async (req, res) => {
             });
         }
         
-        // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(contactEmail)) {
             return res.status(400).json({ 
@@ -278,7 +230,6 @@ app.post('/api/contact', async (req, res) => {
             });
         }
         
-        // Create contact object
         const contact = {
             id: contacts.length + 1,
             name: contactName,
@@ -289,10 +240,8 @@ app.post('/api/contact', async (req, res) => {
             createdAt: new Date().toISOString()
         };
         
-        // Store contact
         contacts.push(contact);
         
-        // Send confirmation email (only if email is configured)
         if (transporter) {
             try {
                 await transporter.sendMail({
@@ -303,8 +252,6 @@ app.post('/api/contact', async (req, res) => {
                         <h2>Thank you for contacting us!</h2>
                         <p>Dear ${contactName},</p>
                         <p>We have received your message and will respond as soon as possible.</p>
-                        <p><strong>Your message:</strong></p>
-                        <p>${contactMessage}</p>
                         <br>
                         <p>Best regards,<br>Care1st Dental Management Team</p>
                     `
@@ -312,28 +259,6 @@ app.post('/api/contact', async (req, res) => {
             } catch (emailError) {
                 console.error('Email sending failed:', emailError);
             }
-            
-            // Send notification to admin
-            try {
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
-                    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-                    subject: `New Contact Message: ${subject}`,
-                    html: `
-                        <h2>New Contact Form Submission</h2>
-                        <ul>
-                            <li><strong>Name:</strong> ${contactName}</li>
-                            <li><strong>Email:</strong> ${contactEmail}</li>
-                            <li><strong>Subject:</strong> ${subject}</li>
-                            <li><strong>Message:</strong> ${contactMessage}</li>
-                        </ul>
-                    `
-                });
-            } catch (emailError) {
-                console.error('Admin notification failed:', emailError);
-            }
-        } else {
-            console.log('Email not configured - skipping email notifications');
         }
         
         res.status(201).json({ 
@@ -354,17 +279,14 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
-// Get all appointments (admin endpoint - should be protected in production)
 app.get('/api/admin/appointments', (req, res) => {
     res.json(appointments);
 });
 
-// Get all contacts (admin endpoint - should be protected in production)
 app.get('/api/admin/contacts', (req, res) => {
     res.json(contacts);
 });
 
-// Update appointment status (admin endpoint)
 app.patch('/api/admin/appointments/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -388,26 +310,10 @@ app.patch('/api/admin/appointments/:id', (req, res) => {
     });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ 
-        success: false, 
-        message: 'Something went wrong!' 
-    });
-});
-
-// Serve frontend - MUST be last
+// Serve index.html for all other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server (only in development, Vercel handles this)
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-        console.log(`Visit http://localhost:${PORT}`);
-    });
-}
-
+// Export for Vercel
 module.exports = app;
