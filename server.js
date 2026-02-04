@@ -35,7 +35,9 @@ try {
     console.log('Nodemailer not available');
 }
 
-// Explicit static file routes
+// CRITICAL: Static file routes for Vercel
+
+// CSS and JS files
 app.get('/styles.css', (req, res) => {
     res.setHeader('Content-Type', 'text/css');
     res.sendFile(path.join(__dirname, 'styles.css'));
@@ -46,9 +48,32 @@ app.get('/script.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'script.js'));
 });
 
-app.get('/care1stlogo.jpg', (req, res) => {
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.sendFile(path.join(__dirname, 'care1stlogo.jpg'));
+// Universal image handler - handles ALL image files automatically
+app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => {
+    const { filename } = req.params;
+    
+    // Determine MIME type
+    const ext = filename.split('.').pop().toLowerCase();
+    const mimeTypes = {
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        gif: 'image/gif',
+        svg: 'image/svg+xml',
+        webp: 'image/webp',
+        ico: 'image/x-icon'
+    };
+    
+    res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+    
+    // Try to send the file
+    const filepath = path.join(__dirname, filename);
+    res.sendFile(filepath, (err) => {
+        if (err) {
+            console.error('Image not found:', filename);
+            res.status(404).send('Image not found');
+        }
+    });
 });
 
 // API Routes
@@ -67,7 +92,7 @@ app.get('/api/courses', (req, res) => {
             duration: "3 days",
             level: "Advanced",
             price: 2499,
-            date: "2026-03-15",
+            date: "2024-03-15",
             capacity: 20,
             enrolled: 14
         },
@@ -80,7 +105,7 @@ app.get('/api/courses', (req, res) => {
             duration: "2 days",
             level: "Intermediate",
             price: 1799,
-            date: "2026-04-08",
+            date: "2024-04-08",
             capacity: 25,
             enrolled: 18
         },
@@ -93,7 +118,7 @@ app.get('/api/courses', (req, res) => {
             duration: "2 days",
             level: "Advanced",
             price: 1999,
-            date: "2026-05-12",
+            date: "2024-05-12",
             capacity: 18,
             enrolled: 12
         }
