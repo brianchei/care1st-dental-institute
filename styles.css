@@ -242,10 +242,18 @@ h4 { font-size: 1.5rem; }
 }
 
 .hero-background {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg, #f8f9fa 0%, #e8eef3 50%, #d4e1ea 100%);
     opacity: 0.7;
+}
+
+.hero > img {
+    margin-top: 6;
+    width: 100%;
 }
 
 .hero-background::before {
@@ -399,6 +407,15 @@ h4 { font-size: 1.5rem; }
     color: var(--text-secondary);
     font-size: 1rem;
     font-weight: 500;
+}
+
+/* Cover Image */
+.cover {
+    text-align: center;
+}
+
+.cover img {
+    width: 100%;
 }
 
 /* Section Header */

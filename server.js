@@ -67,7 +67,7 @@ app.get('/api/courses', (req, res) => {
             duration: "3 days",
             level: "Advanced",
             price: 2499,
-            date: "2024-03-15",
+            date: "2026-03-15",
             capacity: 20,
             enrolled: 14
         },
@@ -80,7 +80,7 @@ app.get('/api/courses', (req, res) => {
             duration: "2 days",
             level: "Intermediate",
             price: 1799,
-            date: "2024-04-08",
+            date: "2026-04-08",
             capacity: 25,
             enrolled: 18
         },
@@ -93,7 +93,7 @@ app.get('/api/courses', (req, res) => {
             duration: "2 days",
             level: "Advanced",
             price: 1999,
-            date: "2024-05-12",
+            date: "2026-05-12",
             capacity: 18,
             enrolled: 12
         }

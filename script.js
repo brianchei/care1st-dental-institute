@@ -8,7 +8,7 @@ const courses = [
         duration: "3 days",
         level: "Advanced",
         price: "$2,499",
-        date: "March 15-17, 2024"
+        date: "March 15-17, 2026"
     },
     {
         title: "Cosmetic Dentistry Workshop",
@@ -18,7 +18,7 @@ const courses = [
         duration: "2 days",
         level: "Intermediate",
         price: "$1,799",
-        date: "April 8-9, 2024"
+        date: "April 8-9, 2026"
     },
     {
         title: "Endodontic Excellence",
@@ -28,7 +28,7 @@ const courses = [
         duration: "2 days",
         level: "Advanced",
         price: "$1,999",
-        date: "May 12-13, 2024"
+        date: "May 12-13, 2026"
     },
     {
         title: "Digital Dentistry Fundamentals",
@@ -38,7 +38,7 @@ const courses = [
         duration: "1 day",
         level: "Beginner",
         price: "$899",
-        date: "April 22, 2024"
+        date: "April 22, 2026"
     },
     {
         title: "Orthodontic Treatment Planning",
@@ -48,7 +48,7 @@ const courses = [
         duration: "2 days",
         level: "Intermediate",
         price: "$1,599",
-        date: "June 5-6, 2024"
+        date: "June 5-6, 2026"
     },
     {
         title: "Practice Management & Growth",
@@ -58,7 +58,7 @@ const courses = [
         duration: "1 day",
         level: "All Levels",
         price: "$699",
-        date: "May 28, 2024"
+        date: "May 28, 2026"
     }
 ];
 
