@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -17,29 +18,30 @@ const contacts = [];
 // Email configuration
 let transporter = null;
 
-let nodemailer;
 try {
-    nodemailer = require('nodemailer');
-    console.log('✅ Nodemailer loaded successfully');
+    const nodemailer = require('nodemailer');  // Keep as const, inside try
+    console.log('✅ Nodemailer module loaded');
     
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         transporter = nodemailer.createTransporter({
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: process.env.SMTP_PORT || 587,
+            port: parseInt(process.env.SMTP_PORT) || 587,
             secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             }
         });
-        console.log('✅ Email transporter configured');
+        console.log('✅ Email transporter configured successfully');
+        console.log('📧 Email user:', process.env.EMAIL_USER);
     } else {
-        console.log('⚠️ Email credentials not in environment variables');
-        console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
-        console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
+        console.log('⚠️ Email credentials missing');
+        console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
+        console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
     }
 } catch (error) {
-    console.error('❌ Error loading nodemailer:', error.message);
+    console.error('❌ Nodemailer error:', error);
+    transporter = null;
 }
 
 // CRITICAL: Static file routes for Vercel
@@ -72,15 +74,31 @@ app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => 
     };
     
     res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
     
-    // Try to send the file
-    const filepath = path.join(__dirname, filename);
-    res.sendFile(filepath, (err) => {
-        if (err) {
-            console.error('Image not found:', filename);
-            res.status(404).send('Image not found');
+    // Try multiple possible locations
+    const possiblePaths = [
+        path.join(__dirname, filename),                    // Same directory as server.js
+        path.join(__dirname, '..', filename),              // Parent directory (for api/ structure)
+        path.join(process.cwd(), filename),                // Current working directory
+        path.join('/var/task', filename),                  // Vercel lambda root
+    ];
+    
+    console.log('🔍 Looking for:', filename);
+    console.log('__dirname:', __dirname);
+    console.log('cwd:', process.cwd());
+    
+    // Try each path
+    for (let filepath of possiblePaths) {
+        if (fs.existsSync(filepath)) {
+            console.log('✅ Found at:', filepath);
+            return res.sendFile(filepath);
         }
-    });
+        console.log('❌ Not at:', filepath);
+    }
+    
+    console.error('❌ Image not found anywhere:', filename);
+    res.status(404).send('Image not found');
 });
 
 // API Routes
