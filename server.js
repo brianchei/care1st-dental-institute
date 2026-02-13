@@ -17,8 +17,10 @@ const contacts = [];
 // Email configuration
 let transporter = null;
 
+let nodemailer;
 try {
-    const nodemailer = require('nodemailer');
+    nodemailer = require('nodemailer');
+    console.log('✅ Nodemailer loaded successfully');
     
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         transporter = nodemailer.createTransporter({
@@ -30,9 +32,14 @@ try {
                 pass: process.env.EMAIL_PASS
             }
         });
+        console.log('✅ Email transporter configured');
+    } else {
+        console.log('⚠️ Email credentials not in environment variables');
+        console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+        console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
     }
 } catch (error) {
-    console.log('Nodemailer not available');
+    console.error('❌ Error loading nodemailer:', error.message);
 }
 
 // CRITICAL: Static file routes for Vercel
