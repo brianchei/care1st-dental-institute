@@ -15,14 +15,13 @@ app.use(express.urlencoded({ extended: true }));
 const appointments = [];
 const contacts = [];
 
-// Email configuration
+// Email configuration - Load nodemailer at module level
 let transporter = null;
 
-try {
-    const nodemailer = require('nodemailer');  // Keep as const, inside try
-    console.log('✅ Nodemailer module loaded');
-    
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+const nodemailer = require('nodemailer');
+
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    try {
         transporter = nodemailer.createTransporter({
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
             port: parseInt(process.env.SMTP_PORT) || 587,
@@ -30,18 +29,31 @@ try {
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
-        console.log('✅ Email transporter configured successfully');
-        console.log('📧 Email user:', process.env.EMAIL_USER);
-    } else {
-        console.log('⚠️ Email credentials missing');
-        console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-        console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
+        
+        console.log('✅ Email transporter created');
+        console.log('📧 Email configured for:', process.env.EMAIL_USER);
+        
+        // Test the connection
+        transporter.verify(function(error, success) {
+            if (error) {
+                console.error('❌ Email verification failed:', error.message);
+            } else {
+                console.log('✅ Email server connection verified');
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error creating email transporter:', error);
+        transporter = null;
     }
-} catch (error) {
-    console.error('❌ Nodemailer error:', error);
-    transporter = null;
+} else {
+    console.log('⚠️ Email not configured - missing credentials');
+    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
+    console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
 }
 
 // CRITICAL: Static file routes for Vercel
