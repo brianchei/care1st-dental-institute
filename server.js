@@ -169,6 +169,18 @@ app.get('/api/products', (req, res) => {
     res.json(products);
 });
 
+// Add this route near the top, after other app.get routes
+app.get('/api/debug', (req, res) => {
+    res.json({
+        hasResendKey: !!process.env.RESEND_API_KEY,
+        keyPrefix: process.env.RESEND_API_KEY ? 
+            process.env.RESEND_API_KEY.substring(0, 5) + '...' : 'NOT SET',
+        hasAdminEmail: !!process.env.ADMIN_EMAIL,
+        adminEmail: process.env.ADMIN_EMAIL || 'NOT SET',
+        resendConfigured: !!resend
+    });
+});
+
 app.post('/api/appointments', async (req, res) => {
     try {
         const { name, email, phone, appointmentType, date, time, message } = req.body;
