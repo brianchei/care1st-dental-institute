@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { Resend } = require('resend');
 require('dotenv').config();
 
 const app = express();
@@ -15,45 +16,16 @@ app.use(express.urlencoded({ extended: true }));
 const appointments = [];
 const contacts = [];
 
-// Email configuration - Load nodemailer at module level
-let transporter = null;
+// Email configuration using Resend
+let resend = null;
 
-const nodemailer = require('nodemailer');
-
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    try {
-        transporter = nodemailer.createTransporter({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.SMTP_PORT) || 587,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-        
-        console.log('✅ Email transporter created');
-        console.log('📧 Email configured for:', process.env.EMAIL_USER);
-        
-        // Test the connection
-        transporter.verify(function(error, success) {
-            if (error) {
-                console.error('❌ Email verification failed:', error.message);
-            } else {
-                console.log('✅ Email server connection verified');
-            }
-        });
-    } catch (error) {
-        console.error('❌ Error creating email transporter:', error);
-        transporter = null;
-    }
+if (process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('✅ Resend email service configured');
+    console.log('📧 Admin email set to:', process.env.ADMIN_EMAIL || 'Not configured');
 } else {
-    console.log('⚠️ Email not configured - missing credentials');
-    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-    console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
+    console.log('⚠️ RESEND_API_KEY not set in environment variables');
+    console.log('Emails will not be sent. Add RESEND_API_KEY to Vercel environment variables.');
 }
 
 // CRITICAL: Static file routes for Vercel
@@ -69,7 +41,7 @@ app.get('/script.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'script.js'));
 });
 
-// Universal image handler - handles ALL image files automatically
+// Universal image handler - handles ALL image files
 app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => {
     const { filename } = req.params;
     
@@ -90,15 +62,13 @@ app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => 
     
     // Try multiple possible locations
     const possiblePaths = [
-        path.join(__dirname, filename),                    // Same directory as server.js
-        path.join(__dirname, '..', filename),              // Parent directory (for api/ structure)
-        path.join(process.cwd(), filename),                // Current working directory
-        path.join('/var/task', filename),                  // Vercel lambda root
+        path.join(__dirname, filename),
+        path.join(__dirname, '..', filename),
+        path.join(process.cwd(), filename),
+        path.join('/var/task', filename),
     ];
     
     console.log('🔍 Looking for:', filename);
-    console.log('__dirname:', __dirname);
-    console.log('cwd:', process.cwd());
     
     // Try each path
     for (let filepath of possiblePaths) {
@@ -106,16 +76,19 @@ app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => 
             console.log('✅ Found at:', filepath);
             return res.sendFile(filepath);
         }
-        console.log('❌ Not at:', filepath);
     }
     
-    console.error('❌ Image not found anywhere:', filename);
+    console.error('❌ Image not found:', filename);
     res.status(404).send('Image not found');
 });
 
 // API Routes
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
+    res.json({ 
+        status: 'ok', 
+        message: 'Server is running',
+        emailConfigured: !!resend
+    });
 });
 
 app.get('/api/courses', (req, res) => {
@@ -200,6 +173,7 @@ app.post('/api/appointments', async (req, res) => {
     try {
         const { name, email, phone, appointmentType, date, time, message } = req.body;
         
+        // Validation
         if (!name || !email || !phone || !appointmentType || !date || !time) {
             return res.status(400).json({ 
                 success: false, 
@@ -207,6 +181,7 @@ app.post('/api/appointments', async (req, res) => {
             });
         }
         
+        // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({ 
@@ -215,6 +190,7 @@ app.post('/api/appointments', async (req, res) => {
             });
         }
         
+        // Create appointment object
         const appointment = {
             id: appointments.length + 1,
             name,
@@ -228,31 +204,127 @@ app.post('/api/appointments', async (req, res) => {
             createdAt: new Date().toISOString()
         };
         
+        // Store appointment
         appointments.push(appointment);
+        console.log('✅ Appointment saved:', appointment.id);
         
-        if (transporter) {
+        // Send emails using Resend
+        if (resend) {
             try {
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
+                // Send confirmation to customer
+                const customerEmail = await resend.emails.send({
+                    from: 'Care1st Dental <onboarding@resend.dev>',
                     to: email,
                     subject: 'Appointment Request Confirmation - Care1st Dental',
                     html: `
-                        <h2>Thank you for your appointment request!</h2>
-                        <p>Dear ${name},</p>
-                        <p>We have received your appointment request with the following details:</p>
-                        <ul>
-                            <li><strong>Type:</strong> ${appointmentType}</li>
-                            <li><strong>Date:</strong> ${date}</li>
-                            <li><strong>Time:</strong> ${time}</li>
-                        </ul>
-                        <p>We will confirm your appointment within 24 hours.</p>
-                        <br>
-                        <p>Best regards,<br>Care1st Dental Management Team</p>
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                                .header { background: #1a5f7a; color: white; padding: 20px; text-align: center; }
+                                .content { background: #f9f9f9; padding: 30px; }
+                                .details { background: white; padding: 20px; border-left: 4px solid #1a5f7a; margin: 20px 0; }
+                                .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+                                ul { list-style: none; padding: 0; }
+                                li { padding: 8px 0; }
+                                strong { color: #1a5f7a; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="header">
+                                    <h1>Thank you for your appointment request!</h1>
+                                </div>
+                                <div class="content">
+                                    <p>Dear ${name},</p>
+                                    <p>We have received your appointment request with the following details:</p>
+                                    <div class="details">
+                                        <ul>
+                                            <li><strong>Type:</strong> ${appointmentType}</li>
+                                            <li><strong>Date:</strong> ${date}</li>
+                                            <li><strong>Time:</strong> ${time}</li>
+                                            <li><strong>Phone:</strong> ${phone}</li>
+                                            ${message ? `<li><strong>Note:</strong> ${message}</li>` : ''}
+                                        </ul>
+                                    </div>
+                                    <p>We will confirm your appointment within 24 hours.</p>
+                                    <p>If you have any questions, please contact us at <strong>(214) 566-7795</strong>.</p>
+                                </div>
+                                <div class="footer">
+                                    <p>Best regards,<br><strong>Care1st Dental Management Team</strong></p>
+                                    <p style="font-size: 12px; color: #999;">
+                                        1548 Valwood Pkwy Ste 100, Carrollton, TX 75006
+                                    </p>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
                     `
                 });
+                
+                console.log('✅ Customer email sent:', customerEmail.data?.id);
+                
+                // Send notification to admin
+                const adminEmail = await resend.emails.send({
+                    from: 'Care1st Dental <onboarding@resend.dev>',
+                    to: process.env.ADMIN_EMAIL || 'admin@care1stdental.com',
+                    subject: `New Appointment Request - ${appointmentType}`,
+                    html: `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                                .header { background: #d4941f; color: white; padding: 20px; }
+                                .content { background: #f9f9f9; padding: 30px; }
+                                .details { background: white; padding: 20px; border-left: 4px solid #d4941f; }
+                                ul { list-style: none; padding: 0; }
+                                li { padding: 8px 0; border-bottom: 1px solid #eee; }
+                                strong { color: #1a5f7a; display: inline-block; width: 120px; }
+                                .urgent { background: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin: 10px 0; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="header">
+                                    <h2>🔔 New Appointment Request</h2>
+                                </div>
+                                <div class="content">
+                                    <div class="urgent">
+                                        <strong>Action Required:</strong> Please confirm this appointment within 24 hours.
+                                    </div>
+                                    <div class="details">
+                                        <ul>
+                                            <li><strong>Name:</strong> ${name}</li>
+                                            <li><strong>Email:</strong> ${email}</li>
+                                            <li><strong>Phone:</strong> ${phone}</li>
+                                            <li><strong>Type:</strong> ${appointmentType}</li>
+                                            <li><strong>Date:</strong> ${date}</li>
+                                            <li><strong>Time:</strong> ${time}</li>
+                                            <li><strong>Message:</strong> ${message || 'N/A'}</li>
+                                            <li><strong>Submitted:</strong> ${new Date().toLocaleString()}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `
+                });
+                
+                console.log('✅ Admin email sent:', adminEmail.data?.id);
+                
             } catch (emailError) {
-                console.error('Email sending failed:', emailError);
+                console.error('❌ Email sending failed:', emailError);
+                // Don't fail the request if email fails
             }
+        } else {
+            console.log('⚠️ Email not configured - skipping email notifications');
         }
         
         res.status(201).json({ 
@@ -265,7 +337,7 @@ app.post('/api/appointments', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Appointment submission error:', error);
+        console.error('❌ Appointment submission error:', error);
         res.status(500).json({ 
             success: false, 
             message: 'Server error. Please try again later.' 
@@ -277,6 +349,7 @@ app.post('/api/contact', async (req, res) => {
     try {
         const { contactName, contactEmail, subject, contactMessage } = req.body;
         
+        // Validation
         if (!contactName || !contactEmail || !subject || !contactMessage) {
             return res.status(400).json({ 
                 success: false, 
@@ -284,6 +357,7 @@ app.post('/api/contact', async (req, res) => {
             });
         }
         
+        // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(contactEmail)) {
             return res.status(400).json({ 
@@ -292,6 +366,7 @@ app.post('/api/contact', async (req, res) => {
             });
         }
         
+        // Create contact object
         const contact = {
             id: contacts.length + 1,
             name: contactName,
@@ -302,25 +377,115 @@ app.post('/api/contact', async (req, res) => {
             createdAt: new Date().toISOString()
         };
         
+        // Store contact
         contacts.push(contact);
+        console.log('✅ Contact message saved:', contact.id);
         
-        if (transporter) {
+        // Send emails using Resend
+        if (resend) {
             try {
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
+                // Send confirmation to customer
+                const customerEmail = await resend.emails.send({
+                    from: 'Care1st Dental <onboarding@resend.dev>',
                     to: contactEmail,
                     subject: 'Message Received - Care1st Dental',
                     html: `
-                        <h2>Thank you for contacting us!</h2>
-                        <p>Dear ${contactName},</p>
-                        <p>We have received your message and will respond as soon as possible.</p>
-                        <br>
-                        <p>Best regards,<br>Care1st Dental Management Team</p>
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                                .header { background: #1a5f7a; color: white; padding: 20px; text-align: center; }
+                                .content { background: #f9f9f9; padding: 30px; }
+                                .message-box { background: white; padding: 20px; border-left: 4px solid #1a5f7a; margin: 20px 0; }
+                                .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="header">
+                                    <h1>Thank you for contacting us!</h1>
+                                </div>
+                                <div class="content">
+                                    <p>Dear ${contactName},</p>
+                                    <p>We have received your message and will respond as soon as possible.</p>
+                                    <div class="message-box">
+                                        <p><strong>Your message:</strong></p>
+                                        <p>${contactMessage}</p>
+                                    </div>
+                                    <p>Our typical response time is within 24 hours during business days.</p>
+                                    <p>For urgent matters, please call us at <strong>(214) 566-7795</strong>.</p>
+                                </div>
+                                <div class="footer">
+                                    <p>Best regards,<br><strong>Care1st Dental Management Team</strong></p>
+                                    <p style="font-size: 12px; color: #999;">
+                                        1548 Valwood Pkwy Ste 100, Carrollton, TX 75006
+                                    </p>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
                     `
                 });
+                
+                console.log('✅ Customer email sent:', customerEmail.data?.id);
+                
+                // Send notification to admin
+                const adminEmail = await resend.emails.send({
+                    from: 'Care1st Dental <onboarding@resend.dev>',
+                    to: process.env.ADMIN_EMAIL || 'admin@care1stdental.com',
+                    subject: `New Contact Message: ${subject}`,
+                    html: `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                                .header { background: #d4941f; color: white; padding: 20px; }
+                                .content { background: #f9f9f9; padding: 30px; }
+                                .details { background: white; padding: 20px; border-left: 4px solid #d4941f; }
+                                ul { list-style: none; padding: 0; }
+                                li { padding: 8px 0; border-bottom: 1px solid #eee; }
+                                strong { color: #1a5f7a; display: inline-block; width: 100px; }
+                                .message { background: #f0f0f0; padding: 15px; margin: 15px 0; border-radius: 4px; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="header">
+                                    <h2>💬 New Contact Form Submission</h2>
+                                </div>
+                                <div class="content">
+                                    <div class="details">
+                                        <ul>
+                                            <li><strong>Name:</strong> ${contactName}</li>
+                                            <li><strong>Email:</strong> ${contactEmail}</li>
+                                            <li><strong>Subject:</strong> ${subject}</li>
+                                            <li><strong>Submitted:</strong> ${new Date().toLocaleString()}</li>
+                                        </ul>
+                                        <div class="message">
+                                            <strong>Message:</strong>
+                                            <p>${contactMessage}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `
+                });
+                
+                console.log('✅ Admin email sent:', adminEmail.data?.id);
+                
             } catch (emailError) {
-                console.error('Email sending failed:', emailError);
+                console.error('❌ Email sending failed:', emailError);
             }
+        } else {
+            console.log('⚠️ Email not configured - skipping email notifications');
         }
         
         res.status(201).json({ 
@@ -333,7 +498,7 @@ app.post('/api/contact', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Contact submission error:', error);
+        console.error('❌ Contact submission error:', error);
         res.status(500).json({ 
             success: false, 
             message: 'Server error. Please try again later.' 
@@ -369,6 +534,15 @@ app.patch('/api/admin/appointments/:id', (req, res) => {
         success: true, 
         message: 'Appointment updated successfully',
         appointment 
+    });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('❌ Server error:', err.stack);
+    res.status(500).json({ 
+        success: false, 
+        message: 'Something went wrong!' 
     });
 });
 
