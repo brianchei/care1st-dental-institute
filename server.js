@@ -25,8 +25,21 @@ if (process.env.RESEND_API_KEY) {
     console.log('📧 Admin email set to:', process.env.ADMIN_EMAIL || 'Not configured');
 } else {
     console.log('⚠️ RESEND_API_KEY not set in environment variables');
-    console.log('Emails will not be sent. Add RESEND_API_KEY to Vercel environment variables.');
 }
+
+// Debug route
+app.get('/api/debug', (req, res) => {
+    res.json({
+        hasResendKey: !!process.env.RESEND_API_KEY,
+        keyPrefix: process.env.RESEND_API_KEY ? 
+            process.env.RESEND_API_KEY.substring(0, 5) + '...' : 'NOT SET',
+        hasAdminEmail: !!process.env.ADMIN_EMAIL,
+        adminEmail: process.env.ADMIN_EMAIL || 'NOT SET',
+        resendConfigured: !!resend,
+        totalAppointments: appointments.length,
+        totalContacts: contacts.length
+    });
+});
 
 // CRITICAL: Static file routes for Vercel
 
@@ -41,11 +54,10 @@ app.get('/script.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'script.js'));
 });
 
-// Universal image handler - handles ALL image files
+// Universal image handler
 app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => {
     const { filename } = req.params;
     
-    // Determine MIME type
     const ext = filename.split('.').pop().toLowerCase();
     const mimeTypes = {
         jpg: 'image/jpeg',
@@ -60,7 +72,6 @@ app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => 
     res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
     res.setHeader('Cache-Control', 'public, max-age=31536000');
     
-    // Try multiple possible locations
     const possiblePaths = [
         path.join(__dirname, filename),
         path.join(__dirname, '..', filename),
@@ -68,17 +79,12 @@ app.get('/:filename(.*\\.(jpg|jpeg|png|gif|svg|webp|ico))', (req, res, next) => 
         path.join('/var/task', filename),
     ];
     
-    console.log('🔍 Looking for:', filename);
-    
-    // Try each path
     for (let filepath of possiblePaths) {
         if (fs.existsSync(filepath)) {
-            console.log('✅ Found at:', filepath);
             return res.sendFile(filepath);
         }
     }
     
-    console.error('❌ Image not found:', filename);
     res.status(404).send('Image not found');
 });
 
@@ -169,24 +175,15 @@ app.get('/api/products', (req, res) => {
     res.json(products);
 });
 
-// Add this route near the top, after other app.get routes
-app.get('/api/debug', (req, res) => {
-    res.json({
-        hasResendKey: !!process.env.RESEND_API_KEY,
-        keyPrefix: process.env.RESEND_API_KEY ? 
-            process.env.RESEND_API_KEY.substring(0, 5) + '...' : 'NOT SET',
-        hasAdminEmail: !!process.env.ADMIN_EMAIL,
-        adminEmail: process.env.ADMIN_EMAIL || 'NOT SET',
-        resendConfigured: !!resend
-    });
-});
-
 app.post('/api/appointments', async (req, res) => {
     try {
         const { name, email, phone, appointmentType, date, time, message } = req.body;
         
+        console.log('📝 Appointment request received:', { name, email, appointmentType, date, time });
+        
         // Validation
         if (!name || !email || !phone || !appointmentType || !date || !time) {
+            console.log('❌ Validation failed: Missing required fields');
             return res.status(400).json({ 
                 success: false, 
                 message: 'All required fields must be filled' 
@@ -196,6 +193,7 @@ app.post('/api/appointments', async (req, res) => {
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
+            console.log('❌ Validation failed: Invalid email format');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Invalid email format' 
@@ -223,6 +221,8 @@ app.post('/api/appointments', async (req, res) => {
         // Send emails using Resend
         if (resend) {
             try {
+                console.log('📧 Attempting to send customer email to:', email);
+                
                 // Send confirmation to customer
                 const customerEmail = await resend.emails.send({
                     from: 'Care1st Dental <onboarding@resend.dev>',
@@ -277,12 +277,16 @@ app.post('/api/appointments', async (req, res) => {
                     `
                 });
                 
-                console.log('✅ Customer email sent:', customerEmail.data?.id);
+                console.log('✅ Customer email sent successfully');
+                console.log('📬 Email ID:', customerEmail.data?.id || customerEmail.id || 'No ID returned');
+                console.log('📬 Full response:', JSON.stringify(customerEmail));
+                
+                console.log('📧 Attempting to send admin email to:', process.env.ADMIN_EMAIL);
                 
                 // Send notification to admin
                 const adminEmail = await resend.emails.send({
                     from: 'Care1st Dental <onboarding@resend.dev>',
-                    to: process.env.ADMIN_EMAIL || 'admin@care1stdental.com',
+                    to: process.env.ADMIN_EMAIL || 'brianchei411@gmail.com',
                     subject: `New Appointment Request - ${appointmentType}`,
                     html: `
                         <!DOCTYPE html>
@@ -329,10 +333,16 @@ app.post('/api/appointments', async (req, res) => {
                     `
                 });
                 
-                console.log('✅ Admin email sent:', adminEmail.data?.id);
+                console.log('✅ Admin email sent successfully');
+                console.log('📬 Email ID:', adminEmail.data?.id || adminEmail.id || 'No ID returned');
+                console.log('📬 Full response:', JSON.stringify(adminEmail));
                 
             } catch (emailError) {
-                console.error('❌ Email sending failed:', emailError);
+                console.error('❌ Email sending failed:');
+                console.error('Error name:', emailError.name);
+                console.error('Error message:', emailError.message);
+                console.error('Error stack:', emailError.stack);
+                console.error('Full error:', JSON.stringify(emailError, null, 2));
                 // Don't fail the request if email fails
             }
         } else {
@@ -361,8 +371,11 @@ app.post('/api/contact', async (req, res) => {
     try {
         const { contactName, contactEmail, subject, contactMessage } = req.body;
         
+        console.log('📝 Contact request received:', { contactName, contactEmail, subject });
+        
         // Validation
         if (!contactName || !contactEmail || !subject || !contactMessage) {
+            console.log('❌ Validation failed: Missing required fields');
             return res.status(400).json({ 
                 success: false, 
                 message: 'All fields are required' 
@@ -372,6 +385,7 @@ app.post('/api/contact', async (req, res) => {
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(contactEmail)) {
+            console.log('❌ Validation failed: Invalid email format');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Invalid email format' 
@@ -396,6 +410,8 @@ app.post('/api/contact', async (req, res) => {
         // Send emails using Resend
         if (resend) {
             try {
+                console.log('📧 Attempting to send customer email to:', contactEmail);
+                
                 // Send confirmation to customer
                 const customerEmail = await resend.emails.send({
                     from: 'Care1st Dental <onboarding@resend.dev>',
@@ -442,12 +458,16 @@ app.post('/api/contact', async (req, res) => {
                     `
                 });
                 
-                console.log('✅ Customer email sent:', customerEmail.data?.id);
+                console.log('✅ Customer email sent successfully');
+                console.log('📬 Email ID:', customerEmail.data?.id || customerEmail.id || 'No ID returned');
+                console.log('📬 Full response:', JSON.stringify(customerEmail));
+                
+                console.log('📧 Attempting to send admin email to:', process.env.ADMIN_EMAIL);
                 
                 // Send notification to admin
                 const adminEmail = await resend.emails.send({
                     from: 'Care1st Dental <onboarding@resend.dev>',
-                    to: process.env.ADMIN_EMAIL || 'admin@care1stdental.com',
+                    to: process.env.ADMIN_EMAIL || 'brianchei411@gmail.com',
                     subject: `New Contact Message: ${subject}`,
                     html: `
                         <!DOCTYPE html>
@@ -491,10 +511,15 @@ app.post('/api/contact', async (req, res) => {
                     `
                 });
                 
-                console.log('✅ Admin email sent:', adminEmail.data?.id);
+                console.log('✅ Admin email sent successfully');
+                console.log('📬 Email ID:', adminEmail.data?.id || adminEmail.id || 'No ID returned');
+                console.log('📬 Full response:', JSON.stringify(adminEmail));
                 
             } catch (emailError) {
-                console.error('❌ Email sending failed:', emailError);
+                console.error('❌ Email sending failed:');
+                console.error('Error name:', emailError.name);
+                console.error('Error message:', emailError.message);
+                console.error('Full error:', JSON.stringify(emailError, null, 2));
             }
         } else {
             console.log('⚠️ Email not configured - skipping email notifications');
