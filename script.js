@@ -1,365 +1,253 @@
-// Sample Data
-const courses = [
-    {
-        title: "Advanced Implantology Masterclass",
-        instructor: "Dr. Sarah Mitchell",
-        tag: "Masterclass",
-        description: "Comprehensive 3-day intensive training covering latest implant placement techniques, bone grafting, and immediate loading protocols.",
-        duration: "3 days",
-        level: "Advanced",
-        price: "$2,499",
-        date: "March 15-17, 2026"
-    },
-    {
-        title: "Cosmetic Dentistry Workshop",
-        instructor: "Dr. James Chen",
-        tag: "Workshop",
-        description: "Hands-on training in veneers, teeth whitening, and smile design using modern CAD/CAM technology and composite materials.",
-        duration: "2 days",
-        level: "Intermediate",
-        price: "$1,799",
-        date: "April 8-9, 2026"
-    },
-    {
-        title: "Endodontic Excellence",
-        instructor: "Dr. Maria Rodriguez",
-        tag: "Masterclass",
-        description: "Master complex root canal procedures, retreatment strategies, and the latest rotary instrumentation techniques.",
-        duration: "2 days",
-        level: "Advanced",
-        price: "$1,999",
-        date: "May 12-13, 2026"
-    },
-    {
-        title: "Digital Dentistry Fundamentals",
-        instructor: "Dr. Kevin Park",
-        tag: "Course",
-        description: "Introduction to digital workflows including intraoral scanning, digital smile design, and 3D printing applications.",
-        duration: "1 day",
-        level: "Beginner",
-        price: "$899",
-        date: "April 22, 2026"
-    },
-    {
-        title: "Orthodontic Treatment Planning",
-        instructor: "Dr. Emily Thompson",
-        tag: "Workshop",
-        description: "Learn systematic approach to orthodontic diagnosis, treatment planning, and clear aligner therapy.",
-        duration: "2 days",
-        level: "Intermediate",
-        price: "$1,599",
-        date: "June 5-6, 2026"
-    },
-    {
-        title: "Practice Management & Growth",
-        instructor: "Dr. Robert Williams",
-        tag: "Seminar",
-        description: "Business strategies for growing your dental practice, team management, marketing, and patient communication.",
-        duration: "1 day",
-        level: "All Levels",
-        price: "$699",
-        date: "May 28, 2026"
-    }
-];
+// Form submission handling
 
-const products = [
-    {
-        name: "NextGen Digital Scanner",
-        category: "Imaging Technology",
-        description: "High-precision intraoral scanner with AI-powered accuracy and real-time 3D visualization.",
-        icon: "📸",
-        link: "#product-scanner"
-    },
-    {
-        name: "Elite Dental Chair System",
-        category: "Clinical Equipment",
-        description: "Ergonomic patient chair with integrated delivery system and touchless controls.",
-        icon: "🪑",
-        link: "#product-chair"
-    },
-    {
-        name: "ProWhite LED System",
-        category: "Cosmetic Equipment",
-        description: "Advanced LED teeth whitening system with customizable treatment protocols.",
-        icon: "💡",
-        link: "#product-whitening"
-    },
-    {
-        name: "SmartCure Composite Kit",
-        category: "Restorative Materials",
-        description: "Premium nano-hybrid composite system with superior aesthetics and durability.",
-        icon: "🦷",
-        link: "#product-composite"
-    },
-    {
-        name: "SonicPro Ultrasonic Scaler",
-        category: "Hygiene Equipment",
-        description: "Variable frequency ultrasonic scaler with ergonomic design and LED illumination.",
-        icon: "🔧",
-        link: "#product-scaler"
-    },
-    {
-        name: "BioSafe Sterilization Unit",
-        category: "Infection Control",
-        description: "Class B autoclave with rapid cycle times and comprehensive instrument protection.",
-        icon: "♻️",
-        link: "#product-autoclave"
-    }
-];
+// Get the forms
+const appointmentForm = document.getElementById('appointmentForm');
+const contactForm = document.getElementById('contactForm');
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    initNavigation();
-    populateCourses();
-    populateProducts();
-    initForms();
-    initScrollAnimations();
+// Get the modal elements
+const successModal = document.getElementById('successModal');
+const closeModal = document.querySelector('.close-modal');
+const modalMessage = document.querySelector('.modal-message');
+
+// Close modal when clicking X or outside
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        successModal.style.display = 'none';
+    });
+}
+
+window.addEventListener('click', (e) => {
+    if (e.target === successModal) {
+        successModal.style.display = 'none';
+    }
 });
 
-// Navigation functionality
-function initNavigation() {
-    const navbar = document.getElementById('navbar');
-    const menuToggle = document.getElementById('menuToggle');
-    const navMenu = document.getElementById('navMenu');
-    const navLinks = document.querySelectorAll('.nav-link');
+// Show success modal
+function showSuccessModal(message) {
+    if (modalMessage) {
+        modalMessage.textContent = message;
+    }
+    if (successModal) {
+        successModal.style.display = 'block';
+    }
+}
 
-    // Sticky navbar on scroll
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
+// Handle appointment form submission
+if (appointmentForm) {
+    appointmentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        console.log('=== APPOINTMENT FORM SUBMISSION ===');
+        
+        const submitButton = appointmentForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        
+        // Disable button and show loading
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
+        
+        const appointmentData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            appointmentType: document.getElementById('appointmentType').value,
+            date: document.getElementById('date').value,
+            time: document.getElementById('time').value,
+            message: document.getElementById('message').value
+        };
+        
+        console.log('Appointment Data:', appointmentData);
+        console.log('Sending POST to /api/appointments');
+        
+        try {
+            const response = await fetch('/api/appointments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(appointmentData)
+            });
+            
+            console.log('Response status:', response.status);
+            
+            const data = await response.json();
+            console.log('Response data:', data);
+            
+            if (data.success) {
+                console.log('✅ Appointment submitted successfully!');
+                
+                // Show success modal
+                showSuccessModal('Your appointment request has been submitted successfully! We will contact you within 24 hours.');
+                
+                // Reset form
+                appointmentForm.reset();
+            } else {
+                console.error('❌ Server returned error:', data.message);
+                alert('Error: ' + data.message);
+            }
+            
+        } catch (error) {
+            console.error('❌ Fetch error:', error);
+            alert('An error occurred. Please try again.');
+        } finally {
+            // Re-enable button
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
         }
     });
+}
 
-    // Mobile menu toggle
-    menuToggle.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-    });
-
-    // Smooth scrolling for nav links
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const href = link.getAttribute('href');
-            if (href.startsWith('#')) {
-                e.preventDefault();
-                const target = document.querySelector(href);
-                if (target) {
-                    const offset = 80;
-                    const targetPosition = target.offsetTop - offset;
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                    navMenu.classList.remove('active');
-                }
-            }
-        });
-    });
-
-    // Active link highlighting
-    window.addEventListener('scroll', () => {
-        let current = '';
-        const sections = document.querySelectorAll('section[id]');
+// Handle contact form submission
+if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (window.scrollY >= (sectionTop - 100)) {
-                current = section.getAttribute('id');
+        console.log('=== CONTACT FORM SUBMISSION ===');
+        
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        
+        // Disable button and show loading
+        submitButton.disabled = true;
+        submitButton.textContent = 'Sending...';
+        
+        const contactData = {
+            contactName: document.getElementById('contactName').value,
+            contactEmail: document.getElementById('contactEmail').value,
+            subject: document.getElementById('subject').value,
+            contactMessage: document.getElementById('contactMessage').value
+        };
+        
+        console.log('Contact Data:', contactData);
+        console.log('Sending POST to /api/contact');
+        
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(contactData)
+            });
+            
+            console.log('Response status:', response.status);
+            
+            const data = await response.json();
+            console.log('Response data:', data);
+            
+            if (data.success) {
+                console.log('✅ Message sent successfully!');
+                
+                // Show success modal
+                showSuccessModal('Your message has been sent successfully! We will respond as soon as possible.');
+                
+                // Reset form
+                contactForm.reset();
+            } else {
+                console.error('❌ Server returned error:', data.message);
+                alert('Error: ' + data.message);
             }
-        });
+            
+        } catch (error) {
+            console.error('❌ Fetch error:', error);
+            alert('An error occurred. Please try again.');
+        } finally {
+            // Re-enable button
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
+    });
+}
 
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
-            }
-        });
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Mobile menu toggle (if you have one)
+const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const navMenu = document.querySelector('.nav-menu');
+
+if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
     });
 }
 
 // Populate courses dynamically
-function populateCourses() {
-    const coursesGrid = document.getElementById('coursesGrid');
-    
-    courses.forEach((course, index) => {
-        const courseCard = document.createElement('div');
-        courseCard.className = 'course-card';
-        courseCard.style.animationDelay = `${index * 0.1}s`;
+async function populateCourses() {
+    try {
+        const response = await fetch('/api/courses');
+        const courses = await response.json();
         
-        courseCard.innerHTML = `
-            <div class="course-header">
+        const coursesContainer = document.querySelector('.courses-grid');
+        if (!coursesContainer) return;
+        
+        coursesContainer.innerHTML = courses.map(course => `
+            <div class="course-card">
                 <div class="course-tag">${course.tag}</div>
                 <h3 class="course-title">${course.title}</h3>
-                <p class="course-instructor">with ${course.instructor}</p>
-            </div>
-            <div class="course-body">
+                <p class="course-instructor">👨‍⚕️ ${course.instructor}</p>
                 <p class="course-description">${course.description}</p>
                 <div class="course-details">
-                    <div class="detail-item">
-                        <span>⏱️</span>
-                        <span>${course.duration}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span>📊</span>
-                        <span>${course.level}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span>📅</span>
-                        <span>${course.date}</span>
-                    </div>
+                    <span>⏱️ ${course.duration}</span>
+                    <span>📊 ${course.level}</span>
+                    <span>💰 $${course.price.toLocaleString()}</span>
                 </div>
-                <div class="course-price">${course.price}</div>
-                <button class="course-btn" onclick="scrollToAppointment('${course.title}')">Enroll Now</button>
+                <div class="course-meta">
+                    <span>📅 ${course.date}</span>
+                    <span>${course.enrolled}/${course.capacity} enrolled</span>
+                </div>
+                <a href="#appointment" class="btn btn-primary">Enroll Now</a>
             </div>
-        `;
-        
-        coursesGrid.appendChild(courseCard);
-    });
+        `).join('');
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
 }
 
 // Populate products dynamically
-function populateProducts() {
-    const productsGrid = document.getElementById('productsGrid');
-    
-    products.forEach((product, index) => {
-        const productCard = document.createElement('div');
-        productCard.className = 'product-card';
-        productCard.style.animationDelay = `${index * 0.1}s`;
+async function populateProducts() {
+    try {
+        const response = await fetch('/api/products');
+        const products = await response.json();
         
-        productCard.innerHTML = `
-            <div class="product-image">
-                <span style="position: relative; z-index: 1;">${product.icon}</span>
-            </div>
-            <div class="product-info">
+        const productsContainer = document.querySelector('.products-grid');
+        if (!productsContainer) return;
+        
+        productsContainer.innerHTML = products.map(product => `
+            <div class="product-card">
                 <div class="product-category">${product.category}</div>
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-description">${product.description}</p>
-                <div class="product-footer">
-                    <a href="${product.link}" class="product-link">Learn More →</a>
+                <div class="product-details">
+                    <span class="product-price">$${product.price.toLocaleString()}</span>
+                    <span class="product-manufacturer">${product.manufacturer}</span>
                 </div>
+                <div class="product-status ${product.inStock ? 'in-stock' : 'out-of-stock'}">
+                    ${product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
+                </div>
+                <a href="#contact" class="btn btn-secondary">Contact for Details</a>
             </div>
-        `;
-        
-        productsGrid.appendChild(productCard);
-    });
+        `).join('');
+    } catch (error) {
+        console.error('Error loading products:', error);
+    }
 }
 
-// Helper function to scroll to appointment section
-function scrollToAppointment(courseName) {
-    const appointmentSection = document.getElementById('appointment');
-    const offset = 80;
-    const targetPosition = appointmentSection.offsetTop - offset;
-    
-    window.scrollTo({
-        top: targetPosition,
-        behavior: 'smooth'
-    });
-    
-    // Optionally pre-fill the appointment type
-    setTimeout(() => {
-        const appointmentType = document.getElementById('appointmentType');
-        if (appointmentType) {
-            appointmentType.value = 'course';
-        }
-    }, 500);
-}
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    populateCourses();
+    populateProducts();
+});
 
-// Form handling
-function initForms() {
-    const appointmentForm = document.getElementById('appointmentForm');
-    const contactForm = document.getElementById('contactForm');
-    const modal = document.getElementById('successModal');
-    const closeModal = document.querySelector('.close-modal');
-
-    // Appointment form submission
-    appointmentForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(appointmentForm);
-        const data = Object.fromEntries(formData);
-        
-        console.log('Appointment Data:', data);
-        
-        // Show success modal
-        showModal('Your appointment request has been submitted! We\'ll contact you within 24 hours to confirm.');
-        
-        // Reset form
-        appointmentForm.reset();
-    });
-
-    // Contact form submission
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(contactForm);
-        const data = Object.fromEntries(formData);
-        
-        console.log('Contact Data:', data);
-        
-        // Show success modal
-        showModal('Thank you for your message! We\'ll get back to you as soon as possible.');
-        
-        // Reset form
-        contactForm.reset();
-    });
-
-    // Close modal handlers
-    closeModal.addEventListener('click', () => {
-        modal.classList.remove('active');
-    });
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.remove('active');
-        }
-    });
-}
-
-// Show success modal
-function showModal(message) {
-    const modal = document.getElementById('successModal');
-    const modalMessage = document.getElementById('modalMessage');
-    
-    modalMessage.textContent = message;
-    modal.classList.add('active');
-    
-    // Auto-close after 5 seconds
-    setTimeout(() => {
-        modal.classList.remove('active');
-    }, 5000);
-}
-
-// Scroll animations
-function initScrollAnimations() {
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    // Observe all cards
-    const cards = document.querySelectorAll('.course-card, .product-card, .facility-card, .stat-card');
-    cards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.6s ease';
-        observer.observe(card);
-    });
-}
-
-// Set minimum date for appointment booking (today)
-const dateInput = document.getElementById('date');
-if (dateInput) {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.setAttribute('min', today);
-}
+console.log('✅ Script.js loaded successfully');
