@@ -62,11 +62,11 @@ See [`CONTENT_LEDGER.md`](CONTENT_LEDGER.md) for verified, inferred, and omitted
 ## Deployment (Vercel)
 
 1. Push this repository to GitHub.
-2. Import the project in Vercel (framework: Next.js).
-3. Set environment variables from `.env.example`.
-4. Deploy. Vercel will run `next build` automatically.
+2. In the Vercel project, set **Framework Preset** to **Next.js** (Project Settings → General). Clear any custom **Output Directory** left over from the old Express deploy.
+3. Set environment variables from `.env.example` (`RESEND_API_KEY`, `ADMIN_EMAIL`, `NEXT_PUBLIC_SITE_URL`).
+4. Deploy. `vercel.json` pins the framework to Next.js; Vercel runs `next build` automatically.
 
-The previous Express `vercel.json` rewrite hack is no longer used.
+The previous Express rewrite config lives only under `_legacy/vercel.json` and is not used.
 
 ## Legacy site
 
