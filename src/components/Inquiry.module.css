@@ -1,0 +1,162 @@
+.inquiry {
+  background: var(--paper);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.direct {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.direct li {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.direct span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.direct a,
+.direct p {
+  font-size: 1.1rem;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.direct a:hover {
+  color: var(--slate-deep);
+}
+
+.social {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.social a {
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--slate-deep);
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 0.15rem;
+}
+
+.formPanel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-soft);
+}
+
+.formTitle {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-5);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  background: var(--white);
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.error {
+  padding: 0.85rem 1rem;
+  background: #f8e8e8;
+  color: #7a1f1f;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+}
+
+.privacy {
+  font-size: 0.85rem;
+  color: var(--slate);
+}
+
+.privacy a {
+  color: var(--ink);
+}
+
+.success {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-height: 18rem;
+}
+
+.success h3 {
+  font-size: 1.75rem;
+}
+
+.success a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@media (min-width: 700px) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .formPanel {
+    padding: var(--space-6);
+  }
+}
+
+@media (min-width: 960px) {
+  .grid {
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: start;
+  }
+}

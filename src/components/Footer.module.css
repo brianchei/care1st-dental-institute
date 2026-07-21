@@ -1,0 +1,106 @@
+.footer {
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.78);
+  padding-block: var(--space-8) var(--space-6);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--white);
+  margin-bottom: var(--space-4);
+}
+
+.logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: contain;
+  background: var(--white);
+}
+
+.brandName {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.brandSub {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  font-weight: 600;
+}
+
+.blurb {
+  max-width: 32ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.heading {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  margin-bottom: var(--space-4);
+}
+
+.list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.list a {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.82);
+  transition: color 0.2s var(--ease);
+}
+
+.list a:hover {
+  color: var(--white);
+}
+
+.address {
+  font-style: normal;
+  line-height: 1.5;
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.875rem;
+}
+
+.bottom a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+}
+
+.bottom a:hover {
+  color: var(--white);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1.4fr 1fr 1.2fr 0.8fr;
+  }
+}

@@ -1,0 +1,103 @@
+.facility {
+  background: var(--paper);
+}
+
+.intro {
+  max-width: 40rem;
+  margin-bottom: var(--space-7);
+}
+
+.exterior {
+  display: grid;
+  gap: var(--space-5);
+  margin-bottom: var(--space-7);
+}
+
+.exteriorMedia {
+  position: relative;
+  min-height: 16rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.exteriorCopy h3 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  margin-bottom: var(--space-4);
+}
+
+.exteriorCopy p {
+  color: var(--slate);
+  margin-bottom: var(--space-5);
+}
+
+.checklist {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.checklist li {
+  padding-left: 1.35rem;
+  position: relative;
+  color: var(--ink-soft);
+}
+
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.7rem;
+  height: 0.15rem;
+  background: var(--gold);
+}
+
+.spaces {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.space {
+  display: grid;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.spaceMedia {
+  position: relative;
+  min-height: 14rem;
+}
+
+.spaceCopy {
+  padding: var(--space-5);
+}
+
+.spaceCopy h3 {
+  font-size: 1.4rem;
+  margin-bottom: var(--space-3);
+}
+
+.spaceCopy p {
+  color: var(--slate);
+}
+
+@media (min-width: 900px) {
+  .exterior {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: center;
+    gap: var(--space-7);
+  }
+
+  .exteriorMedia {
+    min-height: 26rem;
+  }
+
+  .spaces {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

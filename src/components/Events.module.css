@@ -1,0 +1,91 @@
+.events {
+  background:
+    linear-gradient(135deg, rgba(63, 79, 92, 0.94), rgba(20, 22, 26, 0.96)),
+    var(--slate-deep);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.events :global(.section-label) {
+  color: var(--gold-soft);
+}
+
+.events :global(.section-title) {
+  color: var(--white);
+}
+
+.events :global(.section-lead) {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.panel {
+  padding: var(--space-6);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+}
+
+.panelTitle {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  margin-bottom: var(--space-5);
+}
+
+.list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.list li {
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.note {
+  margin-top: var(--space-5);
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.events :global(.btn-outline) {
+  color: var(--white);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.events :global(.btn-outline:hover:not(:disabled)) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--white);
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+}

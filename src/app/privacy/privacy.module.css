@@ -1,0 +1,43 @@
+.page {
+  min-height: 60vh;
+}
+
+.title {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  margin-bottom: var(--space-4);
+}
+
+.lead {
+  color: var(--slate);
+  font-size: 1.125rem;
+  margin-bottom: var(--space-7);
+}
+
+.block {
+  margin-bottom: var(--space-6);
+}
+
+.block h2 {
+  font-size: 1.35rem;
+  margin-bottom: var(--space-3);
+}
+
+.block p {
+  color: var(--ink-soft);
+}
+
+.block a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.back {
+  margin-top: var(--space-7);
+}
+
+.back a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold);
+}

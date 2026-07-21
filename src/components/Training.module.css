@@ -1,0 +1,81 @@
+.training {
+  background: var(--stone);
+}
+
+.intro {
+  max-width: 40rem;
+  margin-bottom: var(--space-7);
+}
+
+.feature {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+}
+
+.media {
+  position: relative;
+  min-height: 18rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.mediaNote {
+  padding: var(--space-5);
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.88);
+  border-radius: var(--radius-lg);
+  font-size: 1.05rem;
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.card {
+  padding: var(--space-5);
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.card h3 {
+  font-size: 1.35rem;
+  margin-bottom: var(--space-3);
+}
+
+.card p {
+  color: var(--slate);
+  font-size: 0.98rem;
+}
+
+@media (min-width: 700px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .feature {
+    grid-template-columns: 1.4fr 0.8fr;
+    align-items: stretch;
+  }
+
+  .media {
+    min-height: 24rem;
+  }
+
+  .mediaNote {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
