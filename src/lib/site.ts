@@ -4,7 +4,7 @@ export const site = {
   tagline: "Excellence in Dental Education",
   description:
     "A modern dental training and education facility for hands-on instruction, continuing education, professional collaboration, and industry events.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://care1stdental.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://care1st.ai",
   phone: "(972) 315-2345",
   phoneHref: "tel:+19723152345",
   email: "meetdrlee@gmail.com",
