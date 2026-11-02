@@ -5,8 +5,8 @@ export const site = {
   description:
     "A modern dental training and education facility for hands-on instruction, continuing education, professional collaboration, and industry events.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://care1st.ai",
-  phone: "(972) 315-2345",
-  phoneHref: "tel:+19723152345",
+  phone: "(945) 209-4479",
+  phoneHref: "tel:+19452094479",
   email: "meetdrlee@gmail.com",
   emailHref: "mailto:meetdrlee@gmail.com",
   address: {

@@ -49,7 +49,7 @@ See [`.env.example`](.env.example).
 
 ## Contact (canonical)
 
-- Phone: (972) 315-2345
+- Phone: (945) 209-4479
 - Email: meetdrlee@gmail.com
 - Instagram: https://www.instagram.com/care1stdental/
 - Facebook: https://www.facebook.com/care1stdental/

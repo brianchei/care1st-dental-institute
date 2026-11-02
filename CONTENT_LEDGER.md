@@ -1,5 +1,5 @@
 # Content Verification Ledger — Care1st Dental Institute
-Last updated: 2026-07-20
+Last updated: 2026-11-02
 
 ## Verified (used on the live site)
 
@@ -7,7 +7,7 @@ Last updated: 2026-07-20
 |---|---|
 | Brand name: Care1st Dental Institute | Logo assets, building signage photo, owner brief |
 | Tagline: Excellence in Dental Education | Facility pull-up banner in hands-on training photo |
-| Phone: (972) 315-2345 | Owner-provided for this rebuild |
+| Phone: (945) 209-4479 | Owner-provided update, 2026-11-02 |
 | Email: meetdrlee@gmail.com | Owner-provided for this rebuild |
 | Instagram / Facebook URLs | Owner-provided |
 | Address: 1548 Valwood Pkwy Ste 100, Carrollton, TX 75006 | Exterior photo (1548 / Suite 100) + prior project materials |

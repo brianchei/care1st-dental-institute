@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { site } from "@/lib/site";
 import styles from "./Events.module.css";
 
 const uses = [
@@ -42,7 +43,7 @@ export function Events() {
             <Link href="/#contact" className="btn btn-gold">
               Discuss Hosting an Event
             </Link>
-            <a href="tel:+19723152345" className="btn btn-outline">
+            <a href={site.phoneHref} className="btn btn-outline">
               Call Care1st
             </a>
           </div>
